@@ -18,19 +18,28 @@ public class UserRegistrationService implements UserDetailsService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	public UserDao save(UserDto user) {
-		System.out.println(user.getRole());
-		UserDao newUser = new UserDao();
-		newUser.setEmail(user.getEmail());
-		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-		newUser.setName(user.getName());
-		newUser.setRole(user.getRole());
-		newUser.setTechnology(user.getTechnology());
-		return userDao.save(newUser);
+	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		UserDao user = userDao.findByEmail(email);
+		System.out.println(email);
+		if (user == null) {
+			throw new UsernameNotFoundException("User not found with email: " + email);
+		}
+		return (UserDetails) user;
 	}
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return null;
+	public UserDao save(UserDto user) {
+		boolean userExists = userDao.existsByEmail(user.getEmail());
+		if (!userExists && user.getEmail() != null) {
+			UserDao newUser = new UserDao();
+			newUser.setEmail(user.getEmail());
+			newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+			newUser.setName(user.getName());
+			newUser.setRole(user.getRole());
+			newUser.setTechnology(user.getTechnology());
+			return userDao.save(newUser);
+		}else {
+			throw new UsernameNotFoundException("Email already exists : " + user.getEmail());
+		}
 	}
 }
