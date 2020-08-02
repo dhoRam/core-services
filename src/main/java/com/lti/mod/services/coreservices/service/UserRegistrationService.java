@@ -30,7 +30,7 @@ public class UserRegistrationService implements UserDetailsService {
 
 	public UserDao save(UserDto user) {
 		boolean userExists = userDao.existsByEmail(user.getEmail());
-		if (!userExists && user.getEmail() != null) {
+		if (!userExists && user.getEmail() != null && user.getName() !=null && user.getPassword() !=null ) {
 			UserDao newUser = new UserDao();
 			newUser.setEmail(user.getEmail());
 			newUser.setPassword(passwordEncoder.encode(user.getPassword()));
